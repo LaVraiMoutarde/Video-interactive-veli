@@ -7,7 +7,7 @@ C'est une expérience où **votre corps devient la télécommande**. En vous dé
 
 ---
 
-## 💻 Matériel Nécessaire
+##  Matériel Nécessaire
 
 Pour que l'installation fonctionne parfaitement, vous avez besoin de :
 
@@ -41,7 +41,7 @@ Pour garantir une interaction fluide, voici comment organiser votre espace :
 
 ---
 
-## 🛠️ Installation Technique (Première fois)
+##  Installation Technique (Première fois)
 
 Si vous installez le projet sur un nouvel ordinateur :
 
@@ -57,7 +57,7 @@ ou ouvrerz le terminal et tapez :
 pip install opencv-python mediapipe numpy
 ---
 
-## 🎹 Raccourcis Utiles
+##  Raccourcis Utiles
 
 -   **F** : Passer en Plein Écran.
 -   **Q** : Quitter l'application.
