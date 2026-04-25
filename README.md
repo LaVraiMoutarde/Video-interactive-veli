@@ -1,113 +1,65 @@
-# Prototype interactif Webcam -> Vidéo (OpenCV & MediaPipe)
+#  Installation Vidéo Interactive
 
-Ce prototype permet de contrôler la timeline d'une vidéo avec son placement physique par rapport à la caméra, et de changer de vidéo grâce aux gestes de la main.
+Bienvenue dans votre projet d'installation interactive "Paradoxe de l'echelle"! Ce guide va vous expliquer simplement comment tout mettre en place le projet.
 
-## Interactions
-- **Pre-phase guidee (avant demarrage)** : une interface claire affiche les etapes a suivre (presence, zone distance, 2 mains levees, maintien du geste).
-- **Lancement vidéo 1 (2 mains levées)** : autorisé uniquement entre **3.0 m et 3.7 m**.
-  - Le geste doit etre maintenu pendant **3 secondes** avec une barre de progression.
-  - Au-dela de 3.7 m : lancement refuse (trop loin).
-  - En-dessous de 3.0 m : lancement refuse (trop proche).
-  - L'indicateur visuel suit la zone stabilisee (hysteresis), pas seulement le seuil brut.
-- **Scrubbing spatial** : plus vous vous approchez de la webcam, plus la vidéo avance. Plus vous vous reculez, plus elle retourne vers le début.
-  *L'interaction est gérée par la distance entre vos deux épaules, lissée via un filtre (EMA) pour un effet fluide et stable.*
-- **Bascule vers vidéo 2 (main droite levée)** : prise en compte uniquement dans la fenetre distance configurée.
-  - Le geste est valide apres maintien avec barre de progression dediee.
-  - En-dessous de **1.2 m**, le trigger est ignore.
-  - La barre de progression et le badge de zone suivent l'etat stabilise de la logique.
-- **Robustesse bords de zones** : une hysteresis est appliquee sur la fenetre de lancement et sur la fenetre du trigger video 2 pour eviter les oscillations a la limite.
-- **Perte de tracking** : countdown de **2 secondes**. Si l'utilisateur ne revient pas, l'experience revient au debut (attente + debut vidéo 1).
-- **Mono-utilisateur** : un seul utilisateur est verrouille par session.
+## C'est quoi ce projet ?
+C'est une expérience où **votre corps devient la télécommande**. En vous déplaçant devant la caméra, vous faites avancer ou reculer le temps dans la vidéo. Un simple geste de la main permet de changer de scène !
 
-## Installation
+---
 
-Dans un terminal, placez-vous dans ce dossier :
-```bash
-cd "c:\Users\Admin\Documents\ecole\projet véli\video_interaction"
-```
+## 💻 Matériel Nécessaire
 
-Installez les dépendances :
+Pour que l'installation fonctionne parfaitement, vous avez besoin de :
+
+1.  **Un Ordinateur** : Sous Windows ou Mac, avec une puissance correcte.
+2.  **Une Webcam** : Une webcam USB externe standard (HD de préférence) ou une caméra du pc portable.
+3.  **Un Vidéoprojecteur ou un Grand Écran** : Pour diffuser l'expérience.
+
+## ⚡ Guide de Démarrage Rapide
+
+1.  **Vérifiez vos vidéos** : Assurez-vous d'avoir deux fichiers nommés `video 1.mp4` et `video 2.mp4` dans ce dossier.
+2.  **Lancez l'application** : Double-cliquez sur le fichier `run.bat`.
+3.  **Jouez** : Cliquez sur le bouton "demarrer l'experience" pour lancer l'expérience.
+4.  **Relancez l'experience** : Cliquez sur la touche "B" ou quittez le champ de vision de la camera.
+
+---
+
+## 🏛️ Installation Physique (Conseils)
+
+Pour garantir une interaction fluide, voici comment organiser votre espace :
+
+### 1. Position de la caméra
+- Placez la webcam en dessous de la zone de projoection, face à l'utilisateur à une hauteur sufisante pour que la camera puisse voir un utilisateur de la tete au bassin.
+
+### 2. Espace de jeu
+- Prévoyez un recul de **3 à 4 mètres** entre l'utilisateur et la caméra.
+- Gardez la zone de passage dégagée : l'ordinateur ne doit suivre qu'une seule personne à la fois.
+
+### 3. Éclairage
+- Privilégiez un éclairage **homogène** si possible. Évitez d'avoir une fenêtre lumineuse ou un projecteur qui éblouit directement la caméra.
+- L'utilisateur doit être bien visible.
+
+---
+
+## 🛠️ Installation Technique (Première fois)
+
+Si vous installez le projet sur un nouvel ordinateur :
+
+### 1. Installer Python
+- [Téléchargez Python ici](https://www.python.org/downloads/windows/) (Cochez bien la case **"Add Python to PATH"** pendant l'installation).
+
+### 2. Installer les outils
+Ouvrez un terminal (tapez "cmd" dans Windows) et tapez :
 ```bash
 pip install -r requirements.txt
 ```
+ou ouvrerz le terminal et tapez :
+pip install opencv-python mediapipe numpy
+---
 
-## Démarrage
+## 🎹 Raccourcis Utiles
 
-Au lancement, un menu de demarrage type "jeu video" permet de choisir rapidement:
-- Lancer l'experience
-- Mode calibration
-- Test camera
-- Quitter
+-   **F** : Passer en Plein Écran.
+-   **Q** : Quitter l'application.
+-   **B** : Réinitialise l'expérience.
 
-Navigation menu:
-- `W/S` ou fleches haut/bas: naviguer
-- `Entree` ou `Espace`: valider
-- `Q`: quitter
-
-**1. Avoir des vidéos dans le dossier :**
-Le script s'attend à lire `video 1.mp4` et `video 2.mp4`.
-Si vous n'en avez pas, vous pouvez générer rapidement deux vidéos de démonstration avec :
-```bash
-python generate_dummy_videos.py
-```
-
-**2. Lancer l'application :**
-```bash
-python main.py
-```
-
-Au demarrage, un ecran d'initialisation est affiche pendant au moins 3 secondes avec le texte `initation de l'idee`.
-Cela masque le chargement des videos lourdes avant l'entree dans l'experience.
-
-Au premier lancement, un fichier `calibration.json` est cree automatiquement.
-Les valeurs de calibration sont rechargees a chaque demarrage.
-
-Raccourci clavier de l'app :
-- **q** : Quitter le programme.
-- **c** : Sauvegarder la calibration courante dans `calibration.json`.
-- **k** : Basculer en mode calibration visuel (fichier separe `src/calibration_mode.py`).
-- **b** : Sortir des videos et revenir au mode detection.
-- **f** : Basculer plein ecran/fenetre pour les 2 fenetres runtime.
-
-## Affichage double ecran (PC debug + projecteur clean)
-- Le runtime ouvre maintenant **2 fenetres**:
-  - `Projector Experience` : rendu clean pour le projecteur.
-  - `Debug Monitor` : overlays techniques (etat, distance, skeleton, commandes) pour le PC.
-- Les deux fenetres se lancent en **plein ecran**.
-- Positions d'ecran configurables dans `calibration.json`:
-  - `debug_monitor_x`, `debug_monitor_y`
-  - `projector_monitor_x`, `projector_monitor_y`
-
-Exemple courant sous Windows (ecran PC a gauche, projecteur a droite):
-```json
-"debug_monitor_x": 0,
-"debug_monitor_y": 0,
-"projector_monitor_x": 1920,
-"projector_monitor_y": 0
-```
-
-## Mode calibration visuel
-- **Objectif** : regler les distances/seuils directement sur l'espace d'installation avec retour camera + jauge des zones.
-- **Touches** :
-  - `[` / `]` : parametre precedent/suivant
-  - `+` / `-` : ajustement fin
-  - `{` / `}` : ajustement large
-  - `g` : assistant guide 4 etapes
-  - `space` : capturer la distance courante dans l'assistant
-  - `x` : annuler l'assistant guide
-  - `s` : sauvegarder dans `calibration.json`
-  - `r` : recharger `calibration.json`
-  - `k` : quitter le mode calibration
-  - Parametres utiles pour stabilite aux bords : `launch hyst (m)` et `v2 trigger hyst (m)`
-
-### Assistant guide (4 etapes)
-1. Capturer la distance minimale de lancement video 1.
-2. Capturer la distance maximale de lancement video 1.
-3. Capturer la distance de bascule video 1 -> video 2.
-4. Capturer la distance minimale d'acceptation du geste main droite pour video 2.
-
-L'assistant applique ensuite la coherence des seuils automatiquement.
-
-librairies principales : 
-open cv
-mediapipe

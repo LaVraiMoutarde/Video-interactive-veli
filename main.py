@@ -99,16 +99,6 @@ def draw_camera_pose_inset(output_frame, camera_frame, pose_frame):
     cv2.putText(output_frame, "camera tracking", (x0 + 8, y0 + inset_h + 20), cv2.FONT_HERSHEY_DUPLEX, 0.55, (240, 240, 240), 2, cv2.LINE_AA)
 
 
-def _draw_step_line(frame, x, y, text, done):
-    if done:
-        color = (95, 220, 135)
-        marker = "[OK]"
-    else:
-        color = (215, 215, 215)
-        marker = "[  ]"
-    cv2.putText(frame, f"{marker} {text}", (x, y), cv2.FONT_HERSHEY_DUPLEX, 0.65, color, 2, cv2.LINE_AA)
-
-
 def draw_bottom_gesture_bar(frame, progress, primary_text, secondary_text, color):
     h, w = frame.shape[:2]
     bar_margin_x = max(28, int(w * 0.04))
@@ -134,10 +124,10 @@ def draw_bottom_gesture_bar(frame, progress, primary_text, secondary_text, color
         cv2.putText(frame, secondary_text, (bar_margin_x, bar_y + 55), cv2.FONT_HERSHEY_DUPLEX, 0.52, (205, 205, 205), 1, cv2.LINE_AA)
 
 
-def draw_prestart_overlay(frame, cfg, state_output, has_person, distance_m, gestures):
+def draw_prestart_overlay(frame, state_output, gestures):
     h, w = frame.shape[:2]
-    panel_w = min(int(w * 0.72), 980)
-    panel_h = min(int(h * 0.46), 430)
+    panel_w = min(int(w * 0.48), 620)
+    panel_h = min(int(h * 0.20), 170)
     x0 = (w - panel_w) // 2
     y0 = max(20, int(h * 0.08))
 
@@ -146,40 +136,24 @@ def draw_prestart_overlay(frame, cfg, state_output, has_person, distance_m, gest
     cv2.addWeighted(panel, 0.72, frame, 0.28, 0, frame)
     cv2.rectangle(frame, (x0, y0), (x0 + panel_w, y0 + panel_h), (220, 220, 220), 2)
 
-    title = "PRE-PHASE GUIDEE"
-    cv2.putText(frame, title, (x0 + 22, y0 + 42), cv2.FONT_HERSHEY_DUPLEX, 1.0, (230, 235, 245), 2, cv2.LINE_AA)
-    cv2.putText(frame, "Suivez ces etapes pour lancer l'experience", (x0 + 22, y0 + 72), cv2.FONT_HERSHEY_DUPLEX, 0.58, (200, 200, 200), 1, cv2.LINE_AA)
+    cv2.putText(frame, "DEMARRAGE", (x0 + 22, y0 + 38), cv2.FONT_HERSHEY_DUPLEX, 0.82, (235, 235, 235), 2, cv2.LINE_AA)
+
+    instruction = state_output.info_message or "Placez-vous face a la camera"
+    instruction_y = y0 + 82
+    instruction_scale = 0.56
+    instruction_color = (240, 240, 240)
+    cv2.putText(frame, instruction, (x0 + 22, instruction_y), cv2.FONT_HERSHEY_DUPLEX, instruction_scale, instruction_color, 2, cv2.LINE_AA)
 
     in_launch_window = state_output.launch_window_active
-
-    both_hands_ok = gestures.both_hands_up and in_launch_window
-    hold_ratio = gestures.both_hands_hold_ratio if in_launch_window else 0.0
-    hold_ratio = min(1.0, max(0.0, hold_ratio))
-
-    y = y0 + 115
-    _draw_step_line(frame, x0 + 28, y, "Entrez dans le champ camera", has_person)
-    y += 38
-    _draw_step_line(
-        frame,
-        x0 + 28,
-        y,
-        f"Placez-vous entre {cfg.launch_min_distance_m:.1f}m et {cfg.launch_max_distance_m:.1f}m",
-        in_launch_window,
-    )
-    y += 38
-    _draw_step_line(frame, x0 + 28, y, "Levez les 2 mains", both_hands_ok)
-    y += 38
-
-    hint = state_output.info_message if state_output.info_message else "Levez les 2 mains pour demarrer"
-    cv2.putText(frame, hint, (x0 + 22, y0 + panel_h - 16), cv2.FONT_HERSHEY_DUPLEX, 0.62, (235, 220, 165), 2, cv2.LINE_AA)
-
-    draw_bottom_gesture_bar(
-        frame=frame,
-        progress=hold_ratio,
-        primary_text="Maintenir les 2 mains levees pour lancer",
-        secondary_text=f"{hold_ratio * cfg.start_gesture_hold_seconds:.2f}s / {cfg.start_gesture_hold_seconds:.2f}s",
-        color=(90, 220, 255),
-    )
+    if in_launch_window:
+        hold_ratio = min(1.0, max(0.0, gestures.both_hands_hold_ratio))
+        draw_bottom_gesture_bar(
+            frame=frame,
+            progress=hold_ratio,
+            primary_text="Maintenez les 2 mains levees",
+            secondary_text="",
+            color=(90, 220, 255),
+        )
 
 
 def draw_video2_switch_overlay(frame, cfg, state_output, distance_m, gestures):
@@ -214,6 +188,27 @@ def draw_video2_switch_overlay(frame, cfg, state_output, distance_m, gestures):
         secondary_text="",
         color=(110, 230, 255),
     )
+
+
+def draw_end_of_session_overlay(frame):
+    h, w = frame.shape[:2]
+    panel_w = min(int(w * 0.72), 940)
+    panel_h = min(int(h * 0.24), 220)
+    x0 = (w - panel_w) // 2
+    y0 = (h - panel_h) // 2
+
+    # Fond semi-transparent clean
+    overlay = frame.copy()
+    cv2.rectangle(overlay, (x0, y0), (x0 + panel_w, y0 + panel_h), (14, 14, 16), -1)
+    cv2.addWeighted(overlay, 0.78, frame, 0.22, 0, frame)
+    cv2.rectangle(frame, (x0, y0), (x0 + panel_w, y0 + panel_h), (210, 210, 210), 2)
+
+    cv2.putText(
+        frame, "FIN DE L'EXPERIENCE", (x0 + 36, y0 + 72), cv2.FONT_HERSHEY_DUPLEX, 1.0, (245, 245, 245), 2, cv2.LINE_AA
+    )
+
+    msg = "Quittez le champ de vision ou appuyez sur 'B' pour recommencer"
+    cv2.putText(frame, msg, (x0 + 36, y0 + 140), cv2.FONT_HERSHEY_DUPLEX, 0.62, (195, 195, 195), 1, cv2.LINE_AA)
 
 
 def draw_startup_cooldown_overlay(frame, seconds_left, elapsed):
@@ -459,6 +454,7 @@ def run_experience(start_in_calibration=False) -> None:
 
     last_time = time.perf_counter()
     previous_state = InteractionState.WAITING_START
+    state_start_time = last_time
 
     def reset_runtime_state() -> None:
         nonlocal distance_estimator, mapper, state_machine, ema_filter, limiter, previous_state
@@ -573,6 +569,9 @@ def run_experience(start_in_calibration=False) -> None:
                 ema_filter.reset()
                 limiter.reset()
 
+            if state_output.state != previous_state:
+                state_start_time = now
+            
             previous_state = state_output.state
 
             if renderer is None:
@@ -585,23 +584,26 @@ def run_experience(start_in_calibration=False) -> None:
 
             projector_frame = base_frame.copy()
 
+            state_duration = now - state_start_time
+
             if state_output.state == InteractionState.WAITING_START:
                 draw_prestart_overlay(
                     frame=projector_frame,
-                    cfg=cfg,
                     state_output=state_output,
-                    has_person=pose_frame.has_person,
-                    distance_m=filtered_distance,
                     gestures=gestures,
                 )
             elif state_output.state == InteractionState.VIDEO2_DETECTION:
-                draw_video2_switch_overlay(
-                    frame=projector_frame,
-                    cfg=cfg,
-                    state_output=state_output,
-                    distance_m=filtered_distance,
-                    gestures=gestures,
-                )
+                # Delai de 1.2s avant d'afficher la notification visuelle (plus fluide)
+                if state_duration > 1.2:
+                    draw_video2_switch_overlay(
+                        frame=projector_frame,
+                        cfg=cfg,
+                        state_output=state_output,
+                        distance_m=filtered_distance,
+                        gestures=gestures,
+                    )
+            elif state_output.state == InteractionState.VIDEO2_CONTROL and state_output.progress >= 0.99:
+                draw_end_of_session_overlay(frame=projector_frame)
 
             debug_frame = projector_frame.copy()
             draw_camera_pose_inset(debug_frame, camera_frame, pose_frame)
