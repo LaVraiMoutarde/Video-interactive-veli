@@ -56,9 +56,10 @@ pip install -r requirements.txt
 ou ouvrerz le terminal et tapez :
 ```bash
 pip install opencv-python mediapipe numpy
+```
 ---
 
-##  Raccourcis Utiles
+### Raccourcis Utiles
 
 -   **F** : Passer en Plein Écran.
 -   **Q** : Quitter l'application.
