@@ -15,7 +15,7 @@ Pour que l'installation fonctionne parfaitement, vous avez besoin de :
 2.  **Une Webcam** : Une webcam USB externe standard (HD de préférence) ou une caméra du pc portable.
 3.  **Un Vidéoprojecteur ou un Grand Écran** : Pour diffuser l'expérience.
 
-## ⚡ Guide de Démarrage Rapide
+## Guide de Démarrage Rapide
 
 1.  **Vérifiez vos vidéos** : Assurez-vous d'avoir deux fichiers nommés `video 1.mp4` et `video 2.mp4` dans ce dossier.
 2.  **Lancez l'application** : Double-cliquez sur le fichier `run.bat`.
@@ -24,7 +24,7 @@ Pour que l'installation fonctionne parfaitement, vous avez besoin de :
 
 ---
 
-## 🏛️ Installation Physique (Conseils)
+## Installation Physique (Conseils)
 
 Pour garantir une interaction fluide, voici comment organiser votre espace :
 
