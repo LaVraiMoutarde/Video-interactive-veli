@@ -54,6 +54,7 @@ Ouvrez un terminal (tapez "cmd" dans Windows) et tapez :
 pip install -r requirements.txt
 ```
 ou ouvrerz le terminal et tapez :
+```bash
 pip install opencv-python mediapipe numpy
 ---
 
